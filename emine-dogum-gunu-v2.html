@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMİNE'nin Doğum Günü</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+
+:root {
+  --neon-pink: #ff2d78;
+  --neon-cyan: #00fff5;
+  --neon-yellow: #ffe600;
+  --neon-green: #39ff14;
+  --neon-purple: #bf00ff;
+  --dark: #05000f;
+  --darker: #020008;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--dark);
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* SCANLINES */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.07) 0px,
+    rgba(0,0,0,0.07) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* GRID ARKAPLAN */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,255,245,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,245,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════ HEADER ═══════════════════════════ */
+.header {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+
+.insert-coin {
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: var(--neon-yellow);
+  letter-spacing: 4px;
+  animation: blink 1s step-start infinite;
+  display: block;
+  margin-bottom: 32px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.score-board {
+  display: inline-flex;
+  gap: 40px;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid var(--neon-cyan);
+  padding: 12px 32px;
+  margin-bottom: 48px;
+  box-shadow: 0 0 20px rgba(0,255,245,0.3), inset 0 0 20px rgba(0,255,245,0.05);
+}
+.score-label {
+  font-size: 9px;
+  color: var(--neon-cyan);
+  display: block;
+  margin-bottom: 6px;
+  opacity: 0.7;
+}
+.score-val {
+  font-family: 'VT323', monospace;
+  font-size: 32px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px var(--neon-yellow);
+}
+
+/* BÜYÜK YAZI */
+.main-title {
+  font-size: clamp(36px, 8vw, 80px);
+  line-height: 1.1;
+  color: white;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+.main-title .line1 {
+  display: block;
+  font-size: clamp(14px, 2.5vw, 22px);
+  color: var(--neon-cyan);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 15px var(--neon-cyan);
+}
+.main-title .line2 {
+  display: block;
+  color: var(--neon-pink);
+  text-shadow:
+    0 0 10px var(--neon-pink),
+    0 0 30px var(--neon-pink),
+    0 0 60px rgba(255,45,120,0.5);
+  animation: glitch 3s infinite;
+  font-size: clamp(50px, 12vw, 110px);
+  letter-spacing: 4px;
+}
+@keyframes glitch {
+  0%, 90%, 100% { transform: translate(0); filter: none; }
+  92% { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
+  94% { transform: translate(3px, -1px); filter: hue-rotate(-90deg); }
+  96% { transform: translate(-1px, 2px); }
+  98% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+}
+.main-title .line3 {
+  display: block;
+  font-size: clamp(12px, 2vw, 18px);
+  color: var(--neon-yellow);
+  letter-spacing: 6px;
+  margin-top: 10px;
+  text-shadow: 0 0 10px var(--neon-yellow);
+  animation: blink 1.5s step-start infinite;
+}
+
+/* ═══════════════════════════ PIXEL PASTA ═══════════════════════════ */
+.cake-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 10;
+}
+
+canvas#cakeCanvas {
+  image-rendering: pixelated;
+}
+
+/* ═══════════════════════════ STATS SECTION ═══════════════════════════ */
+.stats-section {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+.section-header {
+  text-align: center;
+  font-size: 13px;
+  color: var(--neon-cyan);
+  letter-spacing: 4px;
+  margin-bottom: 32px;
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+.section-header::before,
+.section-header::after {
+  content: '══ ';
+  opacity: 0.5;
+}
+
+.stat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 50px;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-name {
+  font-size: 9px;
+  color: var(--neon-yellow);
+  text-align: right;
+}
+
+.stat-bar-wrap {
+  height: 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  position: relative;
+  transition: width 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+  width: 0%;
+}
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    rgba(0,0,0,0.2) 8px,
+    rgba(0,0,0,0.2) 10px
+  );
+}
+
+.stat-num {
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: white;
+  text-align: right;
+}
+
+/* ═══════════════════════════ MESAJ TERMINAL ═══════════════════════════ */
+.terminal-section {
+  position: relative;
+  z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+.terminal {
+  background: #000;
+  border: 2px solid var(--neon-green);
+  box-shadow: 0 0 30px rgba(57,255,20,0.2), inset 0 0 30px rgba(57,255,20,0.03);
+  padding: 0;
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: var(--neon-green);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.terminal-bar-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--dark);
+  opacity: 0.5;
+}
+.terminal-bar-title {
+  font-size: 9px;
+  color: var(--dark);
+  flex: 1;
+  text-align: center;
+}
+
+.terminal-body {
+  padding: 24px;
+}
+
+.term-line {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: var(--neon-green);
+  line-height: 1.6;
+  margin-bottom: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+}
+.term-line.typed { animation: typeIn var(--dur, 2s) var(--del, 0s) steps(40, end) forwards; }
+@keyframes typeIn {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+.term-prompt { color: var(--neon-cyan); }
+.term-highlight { color: var(--neon-yellow); }
+.term-cursor {
+  display: inline-block;
+  width: 10px; height: 18px;
+  background: var(--neon-green);
+  animation: blink 0.8s step-start infinite;
+  vertical-align: bottom;
+  margin-left: 2px;
+}
+
+/* ═══════════════════════════ ACHIEVEMENTS ═══════════════════════════ */
+.achievements-section {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.achievement {
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,255,255,0.1);
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: default;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.achievement.unlocked {
+  border-color: var(--neon-yellow);
+  box-shadow: 0 0 20px rgba(255,230,0,0.15);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s, transform 0.5s, border-color 0.2s, box-shadow 0.2s;
+}
+.achievement:hover {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255,45,120,0.2);
+}
+
+.ach-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  filter: grayscale(0);
+}
+.achievement:not(.unlocked) .ach-icon { filter: grayscale(1); opacity: 0.3; }
+
+.ach-info {}
+.ach-name {
+  font-size: 8px;
+  color: var(--neon-yellow);
+  margin-bottom: 6px;
+  display: block;
+}
+.ach-desc {
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════ SURPRISE BUTTON ═══════════════════════════ */
+.btn-section {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 0 20px 80px;
+}
+
+.arcade-btn {
+  background: transparent;
+  border: 3px solid var(--neon-pink);
+  color: var(--neon-pink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  padding: 20px 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255,45,120,0.3), inset 0 0 20px rgba(255,45,120,0.05);
+  transition: all 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+.arcade-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,45,120,0.2), transparent);
+  animation: scanBtn 2.5s linear infinite;
+}
+@keyframes scanBtn { to { left: 200%; } }
+.arcade-btn:hover {
+  background: rgba(255,45,120,0.1);
+  box-shadow: 0 0 40px rgba(255,45,120,0.5), inset 0 0 20px rgba(255,45,120,0.1);
+  transform: translateY(-2px);
+}
+.arcade-btn:active { transform: translateY(2px) scale(0.98); }
+
+/* ═══════════════════════════ MODAL ═══════════════════════════ */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-bg.show { display: flex; }
+
+.modal-box {
+  background: var(--darker);
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 0 0 60px rgba(0,255,245,0.4);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+@keyframes modalIn {
+  from { transform: scale(0.5) rotate(2deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+.modal-box::before, .modal-box::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: var(--neon-yellow);
+  border-style: solid;
+}
+.modal-box::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.modal-box::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+.modal-title {
+  font-size: 22px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 20px var(--neon-yellow);
+  margin-bottom: 20px;
+  animation: blink 2s step-start infinite;
+}
+.modal-hearts {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 20px;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+.modal-msg {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.modal-close {
+  background: transparent;
+  border: 2px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding: 12px 28px;
+  cursor: pointer;
+  text-shadow: 0 0 8px var(--neon-cyan);
+  letter-spacing: 2px;
+  transition: all 0.15s;
+}
+.modal-close:hover { background: rgba(0,255,245,0.1); }
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 0 20px 40px;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 2px;
+}
+
+/* FİRE PARTİKÜLLER */
+.particles-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.spark {
+  position: absolute;
+  border-radius: 50%;
+  animation: sparkFly var(--t, 3s) var(--d, 0s) ease-out infinite;
+  opacity: 0;
+}
+@keyframes sparkFly {
+  0%   { transform: translate(0,0) scale(1); opacity: 0.9; }
+  100% { transform: translate(var(--tx, 0px), var(--ty, -200px)) scale(0); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="particles-wrap" id="particles"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <span class="insert-coin">▶ INSERT COIN ◀</span>
+
+  <div class="score-board">
+    <div>
+      <span class="score-label">YAŞ</span>
+      <span class="score-val" id="ageCount">00</span>
+    </div>
+    <div>
+      <span class="score-label">MUTLULUK</span>
+      <span class="score-val">∞</span>
+    </div>
+    <div>
+      <span class="score-label">SKOR</span>
+      <span class="score-val" id="scoreCount">000000</span>
+    </div>
+  </div>
+
+  <div class="main-title">
+    <span class="line1">PLAYER 1 — BIRTHDAY</span>
+    <span class="line2">EMİNE</span>
+    <span class="line3">★ LEVEL UP! ★</span>
+  </div>
+</div>
+
+<!-- PIXEL PASTA -->
+<div class="cake-container">
+  <canvas id="cakeCanvas" width="320" height="260" style="width:320px;height:260px;"></canvas>
+</div>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="section-header">KARAKTERİN ÖZELLİKLERİ</div>
+  <div class="stat-bars" id="statBars"></div>
+</section>
+
+<!-- TERMINAL MESAJ -->
+<section class="terminal-section">
+  <div class="section-header">SİSTEM MESAJI</div>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-bar-dot"></div>
+      <div class="terminal-bar-dot"></div>
+      <div class="terminal-bar-dot"></div>
+      <span class="terminal-bar-title">BIRTHDAY_MSG.exe — RUNNING</span>
+    </div>
+    <div class="terminal-body" id="termBody">
+      <div class="term-line typed" style="--dur:0.1s;--del:0.2s"><span class="term-prompt">▶ </span>SİSTEM BAŞLATILIYOR...</div>
+      <div class="term-line typed" style="--dur:1.5s;--del:0.6s"><span class="term-prompt">▶ </span><span class="term-highlight">CANLI EMİNE</span> bağlantısı kuruldu ✓</div>
+      <div class="term-line typed" style="--dur:2s;--del:1.8s"><span class="term-prompt">▶ </span>Bugün senin özel günün, harika insan!</div>
+      <div class="term-line typed" style="--dur:2.5s;--del:3.5s"><span class="term-prompt">▶ </span>Gülüşün dünyayı aydınlatıyor — bunu biliyor musun?</div>
+      <div class="term-line typed" style="--dur:2s;--del:5.5s"><span class="term-prompt">▶ </span>Seni seven <span class="term-highlight">∞</span> kişi var dünyada.</div>
+      <div class="term-line typed" style="--dur:1.8s;--del:7s"><span class="term-prompt">▶ </span>Nice mutlu yıllar dilerim! <span class="term-highlight">♥</span></div>
+      <div class="term-line" style="width:100%;"><span class="term-cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section class="achievements-section">
+  <div class="section-header">BAŞARILAR AÇILDI</div>
+  <div class="achievements-grid" id="achievementsGrid"></div>
+</section>
+
+<!-- BUTON -->
+<div class="btn-section">
+  <button class="arcade-btn" onclick="openModal()">★ SÜRPRIZ MESAJI AL ★</button>
+</div>
+
+<footer>© EMİNE'NIN DOĞUM GÜNÜ — SPECIAL EDITION &nbsp;|&nbsp; ALL RIGHTS RESERVED ♥</footer>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title">!! TEBRIKLER !!</div>
+    <span class="modal-hearts">❤️🎉❤️</span>
+    <p class="modal-msg">
+      Emine, sen bu hayatın en güzel karakterisin.<br><br>
+      Her gün yeni bir macera seni bekliyor.<br>
+      Sevginle, gülüşünle etrafını aydınlatmaya devam et.<br><br>
+      <span style="color:var(--neon-yellow);">İyi ki doğdun! ★</span>
+    </p>
+    <button class="modal-close" onclick="closeModal()">[ TAMAM ]</button>
+  </div>
+</div>
+
+<script>
+// ─── SKOR SAYACI ───
+let score = 0;
+const scoreEl = document.getElementById('scoreCount');
+const ageEl   = document.getElementById('ageCount');
+function animCount(el, target, pad, dur) {
+  let start = 0, step = target / (dur / 16);
+  const t = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = String(Math.round(start)).padStart(pad, '0');
+    if (start >= target) clearInterval(t);
+  }, 16);
+}
+animCount(scoreEl, 999999, 6, 3000);
+animCount(ageEl,   25,     2, 2000);
+
+// ─── PARTİKÜLLER ───
+const pw = document.getElementById('particles');
+const colors = ['#ff2d78','#00fff5','#ffe600','#39ff14','#bf00ff'];
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('div');
+  s.className = 'spark';
+  const size = 3 + Math.random() * 5;
+  const angle = Math.random() * 360;
+  const dist  = 80 + Math.random() * 180;
+  s.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${Math.random()*100}%;top:${Math.random()*100}%;
+    background:${colors[i%colors.length]};
+    --t:${(3+Math.random()*5).toFixed(1)}s;
+    --d:${(Math.random()*6).toFixed(1)}s;
+    --tx:${(Math.cos(angle*Math.PI/180)*dist).toFixed(0)}px;
+    --ty:${-(Math.random()*200+50).toFixed(0)}px;
+    box-shadow:0 0 6px ${colors[i%colors.length]};
+  `;
+  pw.appendChild(s);
+}
+
+// ─── PIXEL PASTA ───
+const cvs = document.getElementById('cakeCanvas');
+const ctx = cvs.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+function px(x,y,w,h,c) { ctx.fillStyle=c; ctx.fillRect(x*10,y*10,w*10,h*10); }
+
+function drawCake() {
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  // tabak
+  px(4,23,24,1,'#444');
+  // gövde alt
+  for(let i=4;i<28;i++) px(i,18,1,5,'#e8476a');
+  px(4,18,24,5,'#e8476a');
+  // orta katman
+  px(5,13,22,5,'#f5c842');
+  // üst katman
+  px(7,8,18,5,'#ce93d8');
+  // kremalar
+  for(let i=5;i<28;i+=3) { px(i,17,2,1,'#fff'); }
+  for(let i=6;i<27;i+=3) { px(i,12,2,1,'#fff'); }
+  // mumlar
+  const candleX = [8,12,16,20,24];
+  candleX.forEach((x,i) => {
+    const cColors = ['#ff2d78','#00fff5','#ffe600','#39ff14','#bf00ff'];
+    px(x,5,1,3,cColors[i]);
+    // alev animasyonu
+    const off = Math.sin(Date.now()/200 + i) * 0.5;
+    px(x, 3+Math.round(off), 1, 2, '#ffe600');
+    px(x, 2+Math.round(off), 1, 1, '#fff');
+  });
+  // yazı piksel glow
+  ctx.fillStyle = 'rgba(255,230,0,0.1)';
+  ctx.fillRect(0,0,cvs.width,40);
+
+  requestAnimationFrame(drawCake);
+}
+drawCake();
+
+// ─── STAT BARS ───
+const stats = [
+  { name:'MUTLULUK',   val:98, color:'#ff2d78' },
+  { name:'SEVECENLİK', val:100,color:'#00fff5' },
+  { name:'NEŞE',       val:95, color:'#ffe600' },
+  { name:'CESARET',    val:90, color:'#39ff14' },
+  { name:'GÜZELLIK',   val:100,color:'#bf00ff' },
+  { name:'ŞANSLILIK',  val:99, color:'#ff2d78' },
+];
+const sb = document.getElementById('statBars');
+stats.forEach((s,i) => {
+  const row = document.createElement('div');
+  row.className = 'stat-row';
+  row.innerHTML = `
+    <span class="stat-name">${s.name}</span>
+    <div class="stat-bar-wrap">
+      <div class="stat-bar-fill" id="bar${i}" style="background:${s.color};box-shadow:0 0 10px ${s.color}40;"></div>
+    </div>
+    <span class="stat-num">${s.val}</span>
+  `;
+  sb.appendChild(row);
+  setTimeout(() => {
+    document.getElementById('bar'+i).style.width = s.val + '%';
+  }, 400 + i * 150);
+});
+
+// ─── ACHIEVEMENTS ───
+const ach = [
+  { icon:'🎂', name:'BIRTHDAY GIRL', desc:'Doğum günün kutlu olsun!' },
+  { icon:'⭐', name:'SÜPER KARAKTER', desc:'En sevilen kişi unvanı' },
+  { icon:'💫', name:'IŞIK KAYNAĞI',  desc:'Etrafı aydınlatma yeteneği' },
+  { icon:'🏆', name:'LEGEND STATUS', desc:'Efsane olma başarısı' },
+  { icon:'❤️', name:'LOVE MAGNET',   desc:'Sevgi toplama rekoru' },
+  { icon:'🎮', name:'LEVEL UP!',     desc:'Yeni yıla geçiş tamamlandı' },
+];
+const ag = document.getElementById('achievementsGrid');
+ach.forEach((a,i) => {
+  const div = document.createElement('div');
+  div.className = 'achievement';
+  div.innerHTML = `<span class="ach-icon">${a.icon}</span><div class="ach-info"><span class="ach-name">${a.name}</span><span class="ach-desc">${a.desc}</span></div>`;
+  ag.appendChild(div);
+  setTimeout(() => div.classList.add('unlocked'), 600 + i * 300);
+});
+
+// ─── MODAL ───
+function openModal() {
+  document.getElementById('modalBg').classList.add('show');
+  burst();
+}
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('show');
+}
+
+function burst() {
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    const color = colors[i % colors.length];
+    const size = 6 + Math.random() * 8;
+    const angle = Math.random() * 360;
+    const dist  = 120 + Math.random() * 200;
+    p.style.cssText = `
+      position:fixed;
+      left:50%;top:50%;
+      width:${size}px;height:${size}px;
+      background:${color};
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      pointer-events:none;
+      z-index:2000;
+      animation:sparkFly 1.2s ease-out forwards;
+      --t:1.2s;--d:0s;
+      --tx:${(Math.cos(angle*Math.PI/180)*dist).toFixed(0)}px;
+      --ty:${(Math.sin(angle*Math.PI/180)*dist).toFixed(0)}px;
+      opacity:1;
+      box-shadow:0 0 8px ${color};
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1300);
+  }
+}
+</script>
+</body>
+</html>
